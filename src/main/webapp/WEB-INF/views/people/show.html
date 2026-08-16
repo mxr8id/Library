@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <p th:text="${person.toString()}">value</p>
+
+    <div th:if="${#lists.isEmpty(books)}">
+        <p>Этот человек не взял ни одной книги</p>
+        <hr>
+    </div>
+
+
+    <div th:unless="${#lists.isEmpty(books)}">
+        <hr>
+        <p><b>Книги</b></p>
+         <p th:each="book : ${books}" th:text="${book.toString()}">books</p>
+        <hr>
+    </div>
+
+    <a th:href="@{{id}/edit(id=${person.getId()})}">edit</a>
+    <form th:method="delete" th:action="@{/people/{id}(id=${person.getId()})}">
+        <input type="submit" value="Delete!">
+    </form>
+
+</body>
+</html>
