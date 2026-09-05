@@ -1,9 +1,15 @@
 package ru.osipov.webPractice.models;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
+@Entity
 public class Person {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Size(min = 2, max = 150, message = "name should be between 2 and 150 chars")
     private String name;
@@ -13,6 +19,8 @@ public class Person {
     private String patronymic;
     @Min(value = 0, message = "age should be greater than 0")
     private Integer age;
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
+    private List<Book> books;
 
     public Person(Integer id, String name, String surname, String patronymic, Integer age) {
         this.id = id;
@@ -63,6 +71,15 @@ public class Person {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
     }
 
     @Override

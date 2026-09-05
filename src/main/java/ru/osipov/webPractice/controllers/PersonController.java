@@ -6,8 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.osipov.webPractice.DAO.PersonDao;
 import ru.osipov.webPractice.models.Person;
+import ru.osipov.webPractice.services.BookService;
+import ru.osipov.webPractice.services.PersonService;
 import ru.osipov.webPractice.util.PersonValidator;
 
 @Controller
@@ -15,14 +16,15 @@ import ru.osipov.webPractice.util.PersonValidator;
 public class PersonController {
 
     @Autowired
-    private PersonDao personDao;
+    private PersonService personService;
 
     @Autowired
     private PersonValidator personValidator;
+    private BookService bookService;
 
     @GetMapping()
     public String index(Model model) {
-        model.addAttribute("people", personDao.index());
+        model.addAttribute("people", personService.index());
         return "people/index";
     }
 
@@ -39,20 +41,20 @@ public class PersonController {
             return "people/new";
         }
 
-        personDao.save(person);
+        personService.save(person);
         return "redirect:/people";
     }
 
     @GetMapping("/{id}")
     public String show(@PathVariable("id") int id, Model model) {
-        model.addAttribute("person", personDao.show(id));
-        model.addAttribute("books", personDao.showAllBooks(id));
+        model.addAttribute("person", personService.show(id));
+        model.addAttribute("books", personService.showAllBooks(id));
         return "people/show";
     }
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable("id") int id, Model model) {
-        model.addAttribute("person", personDao.show(id));
+        model.addAttribute("person", personService.show(id));
         return "people/edit";
     }
 
@@ -62,14 +64,20 @@ public class PersonController {
         if (bindingResult.hasErrors()) {
             return "people/edit";
         }
-        personDao.update(id, person);
+        personService.update(id, person);
         return "redirect:/people";
     }
 
     @DeleteMapping("/{id}")
     public String delete(@PathVariable("id") int id) {
-        personDao.delete(id);
+        personService.delete(id);
         return "redirect:/people";
+    }
+
+    @GetMapping("/search")
+    public String search(@RequestParam("name") String name, Model model) {
+        model.addAttribute("people", personService.search(name));
+        return "people/search";
     }
 
 

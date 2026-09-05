@@ -8,23 +8,24 @@
     <p th:text="${book.toString()}">value</p>
 
     <a th:href="@{/books/{id}/edit(id=${book.getId()})}">edit</a>
-
-    <div th:if="${person.getId() == null}">
-        <p>Эта книга свободна, кому назначить ее?</p>
-            <form th:method="PATCH" th:action="@{/books/{id}/addBook(id=${book.getId()})}">
-                <label for="person"> Выберите человека:</label>
-                    <select th:object="${person}" th:field="*{id}" id="person">
-                        <option th:each="person : ${people}" th:value="${person.getId()}" th:text="${person.toString()}">person</option>
-                    </select>
-                <input type="submit" value="Назначить книгу">
-            </form>
+    <div th:if="${person == null or person.id == null}">
+        <p>Эта книга свободна, кому назначить её?</p>
+        <form th:method="patch" th:action="@{/books/{id}/addBook(id=${book.getId()})}">
+            <label for="personSelect">Выберите человека:</label>
+            <select id="personSelect" name="personId" required>
+                <option value="">-- выберите --</option>
+                <option th:each="p : ${people}"
+                        th:value="${p.id}"
+                        th:text="${p.name} + ' ' + ${p.surname}">person</option>
+            </select>
+            <button type="submit">Назначить книгу</button>
+        </form>
     </div>
 
-    <div th:if="${person.getId() != null}">
-        <p>Книга сейчас у: <span th:text="${person.toString()}">person</span></p>
-        <br>
+    <div th:if="${person != null and person.id != null}">
+        <p>Книга сейчас у: <span th:text="${person.name} + ' ' + ${person.surname}"></span></p>
         <form th:method="patch" th:action="@{/books/{id}/release(id=${book.getId()})}">
-            <input type="submit" value="Освободить книгу">
+            <button type="submit">Освободить книгу</button>
         </form>
     </div>
 

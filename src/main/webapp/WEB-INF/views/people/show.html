@@ -16,7 +16,10 @@
     <div th:unless="${#lists.isEmpty(books)}">
         <hr>
         <p><b>Книги</b></p>
-         <p th:each="book : ${books}" th:text="${book.toString()}">books</p>
+        <div th:each="book : ${books}">
+            <p th:if="${book.isBookExpired()}" style="color: red;" th:text="${book.toString()}">book</p>
+            <p th:unless="${book.isBookExpired()}" th:text="${book.toString()}">book</p>
+        </div>
         <hr>
     </div>
 

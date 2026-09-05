@@ -8,5 +8,11 @@
   <br>
   <br>
   <a href="books">показать все книги</a>
+  <br>
+  <br>
+  <a href="books/search?query">найти книги</a>
+  <br>
+  <br>
+  <a href="people/search?name">найти человека</a>
 </body>
 </html>

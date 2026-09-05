@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form th:method="GET" th:action="@{/people/search}">
+        <label for="request">Введите поисковый запрос:</label>
+        <input type="text" name="name" id="request">
+        <input type="submit" value="Искать!">
+    </form>
+
+    <div th:if="${#lists.isEmpty(people)}">
+        <p>Такого человека не существует!</p>
+    </div>
+    <div th:unless="${#lists.isEmpty(people)}">
+        <div th:each="person : ${people}">
+            <a th:href="@{{id}(id=${person.getId()})}" th:text="${person.toString()}">person</a>
+        </div>
+    </div>
+</body>
+</html>

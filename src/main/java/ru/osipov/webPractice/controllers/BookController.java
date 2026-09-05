@@ -6,10 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.osipov.webPractice.DAO.BookDao;
-import ru.osipov.webPractice.DAO.PersonDao;
 import ru.osipov.webPractice.models.Book;
-import ru.osipov.webPractice.models.Person;
+import ru.osipov.webPractice.services.BookService;
+import ru.osipov.webPractice.services.PersonService;
 import ru.osipov.webPractice.util.BookValidator;
 
 @Controller
@@ -17,15 +16,22 @@ import ru.osipov.webPractice.util.BookValidator;
 public class BookController {
 
     @Autowired
-    private BookDao bookDao;
+    private BookService bookService;
     @Autowired
-    private PersonDao personDao;
+    private PersonService personService;
     @Autowired
     private BookValidator bookValidator;
 
     @GetMapping()
-    public String index(Model model) {
-        model.addAttribute("books", bookDao.index());
+    public String index(@RequestParam(value = "page", required = false) Integer page,
+                        @RequestParam(value = "books_per_page", required = false) Integer booksPerPage,
+                        @RequestParam(value = "sort_by_year", required = false) boolean sortByYear,
+                        Model model) {
+        if (page != null && booksPerPage != null) {
+            model.addAttribute("books", bookService.indexWithPaging(page, booksPerPage, sortByYear));
+        } else {
+            model.addAttribute("books", bookService.indexWithoutPaging(page, booksPerPage, sortByYear));
+        }
         return "books/index";
     }
 
@@ -41,21 +47,21 @@ public class BookController {
         if (bindingResult.hasErrors()) {
             return "books/new";
         }
-        bookDao.save(book);
+        bookService.save(book);
         return "redirect:/books";
     }
 
     @GetMapping("/{id}")
     public String show(@PathVariable("id") int id, Model model) {
-        model.addAttribute("book", bookDao.show(id));
-        model.addAttribute("person", bookDao.showOwner(id));
-        model.addAttribute("people", personDao.index());
-        return "books/show";
+        model.addAttribute("book", bookService.show(id));
+        model.addAttribute("person", bookService.showOwner(id));
+        model.addAttribute("people", personService.index());
+        return "/books/show";
     }
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable("id") int id, Model model) {
-        model.addAttribute("book", bookDao.show(id));
+        model.addAttribute("book", bookService.show(id));
         return "books/edit";
     }
 
@@ -63,30 +69,35 @@ public class BookController {
     public String update(@PathVariable("id") int id, @ModelAttribute @Valid Book book, BindingResult bindingResult) {
         bookValidator.validate(book, bindingResult);
         if (bindingResult.hasErrors()) {
-            return "books/edit";
+            return "/books/edit";
         }
-        bookDao.update(id, book);
+        bookService.update(id, book);
         return "redirect:/books";
     }
 
     @DeleteMapping("/{id}")
     public String delete(@PathVariable("id") int id) {
-        bookDao.delete(id);
+        bookService.delete(id);
         return "redirect:/books";
     }
 
     @PatchMapping("/{id}/release")
     public String toFreeBook(@PathVariable("id") int id) {
-        bookDao.toFreeBook(id);
+        bookService.toFreeBook(id);
         return "redirect:/books/" + id;
     }
 
     @PatchMapping("/{id}/addBook")
-    public String addBook(@PathVariable("id") int id, @ModelAttribute Person person) {
-        bookDao.addBook(person.getId(), id);
+    public String addBook(@PathVariable("id") int id, @RequestParam("personId") int personId) {
+        bookService.addBook(personId, id);
         return "redirect:/books";
     }
 
+    @GetMapping("/search")
+    public String search(@RequestParam(value = "query", required = false) String query, Model model) {
+        model.addAttribute("books", bookService.search(query));
+        return "books/search";
+    }
 
 
 }
